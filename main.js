@@ -1,4 +1,6 @@
-import { setSelectButton, setSelectCards } from "./module/selectCard.js";
+import { setMbtiSection } from "./module/mbtiSelect.js";
+import { setResultContainer, setSelectButton, setSelectCards } from "./module/selectCard.js";
+import { setShareUrlButton } from "./module/share.js";
 import { setTabMenu } from "./module/tabMenu.js";
 import { countUp } from "./utils/countUp.js";
 
@@ -14,3 +16,9 @@ setTabMenu();
 setSelectCards();
 
 setSelectButton();
+
+setResultContainer();
+
+setMbtiSection();
+
+setShareUrlButton();

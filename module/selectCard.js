@@ -32,6 +32,8 @@ const cardInfoList = [
 
 const snackCardList = document.getElementsByClassName('snack-card-list')[0];
 const selectButtonDOM = document.getElementsByClassName('participate-button')[0];
+const [notyetContainerDOM, resultContainerDOM] = document.getElementsByClassName('result-container');
+const [, resultImageDOM,resultName,resultDescription,selectRetryButton] = resultContainerDOM.children;
 
 const getSelectedCard  = () => {
     return document.getElementsByClassName('select')[0];
@@ -84,6 +86,10 @@ const getSelectCardDOM = ({
 }
 
 export const setSelectCards = () =>{
+    //기존의 snackCardList의 자식요소들을 받아와서 -> 순회하면서 없애주기
+    const originalSnackCards = Object.assign([], snackCardList.children);
+    originalSnackCards.forEach((snackCard)=> snackCard.remove())
+
     cardInfoList.forEach((cardInfo)=>{
         const selectCardDOM = getSelectCardDOM(cardInfo);
         snackCardList.appendChild(selectCardDOM)
@@ -120,6 +126,58 @@ export const setSelectButton = () => {
 
 }
 
-const setResultContainer = (key) => {
-    // result 구역에 선택된 과자를 노출시키는 함수z
+const initialize = () => {
+    // 과자가 선택되기 전의 상태로 되돌려주는 함수
+    // 1. localStorage의 선택된 cardId를 삭제
+    // 2. selectCard의 DOM들을 다시 구성
+    // 3. resultContainer의 DOM 다시 구성
+    localStorage.removeItem(SELECT_RESULT_KEY);
+    setSelectCards();
+    setResultContainer();
+    const selectSectionDOM = document.getElementById('participate-section');
+    const scrollTargetY = selectSectionDOM.offsetTop;
+    window.scroll({
+        top:scrollTargetY,
+        left:0,
+        behavior:'smooth'
+    })
+    // // window.scrollTo(0,scrollTargetY);
+    // window.scroll({
+    //     top:scrollTargetY,
+    //     left:0,
+    //     behavior:"smooth"
+    // })
+    // // selectSectionDOM.scrollIntoView({behavior:"smooth"})
 }
+
+
+export const setResultContainer = (key) => {
+    // result 구역에 선택된 과자를 노출시키는 함수
+    // 과자 선택 버튼 클릭 시, 페이지 랜딩 시 동작
+
+    // 1. 선택된 아이디를 localStorage로부터 받아오기
+    // 2. 선택된 아이디가 저장되어 있다면, notyetContainer를 없애고 resultContainer를 보여주기
+    // 3. cardInfoList 에서 선택된 카드의 정보를 찾아서 그 정보를 resultContainer에 연결 시키기
+
+    const selectedId = Number(localStorage.getItem(SELECT_RESULT_KEY));
+
+    const isSelected = !!selectedId;
+    if(!isSelected) {
+        notyetContainerDOM.style.display="block";
+        resultContainerDOM.style.display="none";
+        return;
+    }
+
+    notyetContainerDOM.style.display="none";
+    resultContainerDOM.style.display="flex";
+    
+    const cardInfo = cardInfoList.find((info)=> info.id===selectedId);
+
+    resultImageDOM.src = cardInfo.imgSrc;
+    resultImageDOM.alt = cardInfo.name;
+    resultName.innerHTML =  cardInfo.name;
+    resultDescription.innerHTML = cardInfo.description;
+    
+    //다시하기 버튼 구현
+    selectRetryButton.onclick = initialize;
+};
